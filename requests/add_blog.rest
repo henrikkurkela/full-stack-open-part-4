@@ -1,0 +1,9 @@
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+    "title": "Full Stack Open 2020",
+    "author": "Au Thori",
+    "url": "www.google.fi",
+    "likes": "2020"
+}

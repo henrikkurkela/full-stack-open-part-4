@@ -1,0 +1,29 @@
+{
+	"name": "blogilista",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "nodemon index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/henrikkurkela/full-stack-open-part-4.git"
+	},
+	"author": "Henrik Kurkela",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/henrikkurkela/full-stack-open-part-4/issues"
+	},
+	"homepage": "https://github.com/henrikkurkela/full-stack-open-part-4#readme",
+	"dependencies": {
+		"cors": "^2.8.5",
+		"dotenv": "^8.2.0",
+		"express": "^4.17.1",
+		"mongoose": "^5.9.12"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.3"
+	}
+}
