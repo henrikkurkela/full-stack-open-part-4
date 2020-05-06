@@ -1,9 +1,11 @@
+const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const initialBlogs = [
     { _id: "5a422a851b54a676234d17f7", title: "React patterns", author: "Michael Chan", url: "https://reactpatterns.com/", likes: 7, __v: 0 },
@@ -15,6 +17,13 @@ const initialBlogs = [
 ]
 
 beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('salasana', 10)
+    const user = new User({ username: 'root', name: 'Master User', password: passwordHash })
+
+    await user.save()
+
     await Blog.deleteMany({})
     await Blog.insertMany(initialBlogs)
 })
