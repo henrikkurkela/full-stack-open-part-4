@@ -140,6 +140,22 @@ test('a blog may be edited by issuing http put request', async () => {
     expect(newResult.body.likes).toBe(newBlog.likes)
 })
 
+test('cannot add blogs without a valid token', async () => {
+    const newBlog = {
+        title: "Full Stack",
+        author: "StackMaster",
+        url: "https://stack.com/",
+        likes: 1
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .set('Authorization', `bearer badly forged token`)
+
+    expect(response.status).toBe(401)
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
