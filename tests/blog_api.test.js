@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -7,6 +8,8 @@ const api = supertest(app)
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+
+let token
 const initialBlogs = [
     { _id: "5a422a851b54a676234d17f7", title: "React patterns", author: "Michael Chan", url: "https://reactpatterns.com/", likes: 7, __v: 0 },
     { _id: "5a422aa71b54a676234d17f8", title: "Go To Statement Considered Harmful", author: "Edsger W. Dijkstra", url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html", likes: 5, __v: 0 },
@@ -24,7 +27,14 @@ beforeEach(async () => {
 
     await user.save()
 
+    const userForToken = {
+        username: user.username,
+        id: user.id,
+    }
+    token = jwt.sign(userForToken, process.env.SECRET)
+
     await Blog.deleteMany({})
+    blogs = initialBlogs.map(blog => new Blog({ ...blog, user: user.id }))
     await Blog.insertMany(initialBlogs)
 })
 
@@ -51,6 +61,7 @@ test('a valid blog can be added ', async () => {
     await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `bearer ${token}`)
 
     const response = await api.get('/api/blogs')
     expect(response.body).toHaveLength(initialResponse.body.length + 1)
@@ -66,6 +77,7 @@ test('if blog is added with no votes zero will be assumed', async () => {
     const response = await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `bearer ${token}`)
 
     expect(response.body.likes).toBeDefined()
 })
@@ -80,6 +92,7 @@ test('if blog is added with no url or title it will not be added', async () => {
     const response = await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `bearer ${token}`)
 
     expect(response.status).toBe(400)
 })
@@ -95,9 +108,12 @@ test('a blog may be removed by issuing http delete request', async () => {
     const result = await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `bearer ${token}`)
 
     const response = await api.get(`/api/blogs/${result.body.id}`)
-    const deleteBlog = await api.delete(`/api/blogs/${result.body.id}`)
+    const deleteBlog = await api
+        .delete(`/api/blogs/${result.body.id}`)
+        .set('Authorization', `bearer ${token}`)
     expect(deleteBlog.status).toBe(204)
 })
 
@@ -112,10 +128,14 @@ test('a blog may be edited by issuing http put request', async () => {
     const result = await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `bearer ${token}`)
 
     newBlog.likes += 1
 
-    await api.put(`/api/blogs/${result.body.id}`).send(newBlog)
+    await api
+        .put(`/api/blogs/${result.body.id}`)
+        .send(newBlog)
+        .set('Authorization', `bearer ${token}`)
     const newResult = await api.get(`/api/blogs/${result.body.id}`)
     expect(newResult.body.likes).toBe(newBlog.likes)
 })
